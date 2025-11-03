@@ -42,4 +42,5 @@
 
 # Object files
 obj/
+graphics/
 case_converter
