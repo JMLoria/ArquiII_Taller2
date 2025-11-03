@@ -1,4 +1,36 @@
-# ... [Contenido existente del .gitignore] ...
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Linker files
+*.ilk
+
+# Debugger Files
+*.pdb
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
 
 # Executables
 *.exe
@@ -8,8 +40,7 @@
 # debug information files
 *.dwo
 
-# TALLER SIMD (Archivos ignorados específicamente para este proyecto)
-case_converter              # Ejecutable principal
-performance_results.csv     # Resultados de benchmarks
-obj/                       # Directorio de objetos compilados (ya cubierto por *.o, pero más seguro)
-graphics/                  # Directorio de gráficos generados
+# Object files
+obj/
+case_converter
+graphics/
