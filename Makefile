@@ -1,48 +1,63 @@
+# ====================================================================
+# MAKEFILE VERSÓN FINAL CON REGLA GRAPHIC
+# ====================================================================
+
 # Directorios
-BUILD_DIR = obj
 SRC_DIR = src
+OBJ_DIR = obj
 
-# Nombre del programa ejecutable (se almacenará en obj/)
-TARGET = case_converter
+# Nombre del script de gráficas
+GRAPHIC_SCRIPT = plot_graphics.py
 
-# Compilador y flags
+# Nombre del programa ejecutable
+TARGET = ./case_converter
+
+# Compilador y Flags
 CXX = g++
-# Flags: C++17, optimización máxima (-O3), y optimización para la CPU actual (-march=native)
-CXXFLAGS = -std=c++17 -O3 -march=native
+CXXFLAGS = -std=c++17 -O3 -march=native -Wall
 
-# Archivos fuente y de header
-SRCS = $(wildcard $(SRC_DIR)/*.cpp)
-HDRS = $(SRC_DIR)/common.h
+# Archivos fuente (EN src/)
+SRCS = main.cpp case_converter_serial.cpp case_converter_SIMD.cpp generate_random_string.cpp 
 
-# Archivos objeto: cambia el directorio de src/ a obj/ y la extensión de .cpp a .o
-OBJS = $(patsubst $(SRC_DIR)/%.cpp,$(BUILD_DIR)/%.o,$(SRCS))
+# Archivos objeto (EN obj/)
+OBJS = $(addprefix $(OBJ_DIR)/, $(SRCS:.cpp=.o))
 
-# Regla por defecto: compilar todo
-all: $(BUILD_DIR)/$(TARGET)
-	@echo "Compilación exitosa. El ejecutable se encuentra en $(BUILD_DIR)/."
-	@echo "Para ejecutar, use 'make run'"
+# Regla por defecto: compilar
+all: $(OBJ_DIR) $(TARGET)
+	@echo "Compilación exitosa. Ejecutable: $(TARGET)"
 
-# 1. Asegurar que el directorio de objetos exista
-$(BUILD_DIR):
-	mkdir -p $(BUILD_DIR)
+# Crea el directorio obj si no existe
+$(OBJ_DIR):
+	mkdir -p $(OBJ_DIR)
 
-# 2. Linkeo: enlaza los objetos en el ejecutable final
-$(BUILD_DIR)/$(TARGET): $(OBJS) | $(BUILD_DIR)
-	$(CXX) $(OBJS) -o $@
+# Regla de linkeo
+$(TARGET): $(OBJS)
+	$(CXX) $(OBJS) -o $(TARGET)
 
-# 3. Regla de compilación: compila los archivos fuente en obj/
-# Depende del archivo .cpp en src/ y el header común
-$(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp $(HDRS) | $(BUILD_DIR)
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+# REGLA DE COMPILACIÓN GENÉRICA
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp $(SRC_DIR)/common.h
+	$(CXX) $(CXXFLAGS) -c $< -o $@ -I$(SRC_DIR)
 
-# Regla para ejecutar el programa
-run: $(BUILD_DIR)/$(TARGET)
-	@echo "--- Ejecutando el benchmark (Sección 5.e) ---"
-	./$(BUILD_DIR)/$(TARGET)
+# 1. REGLA: run (Prueba Simple de Funcionamiento)
+run: $(TARGET)
+	@echo "--- 🚀 Ejecutando Prueba Simple de Funcionamiento y Validación ---"
+	$(TARGET) 4000 32 75
+
+# 2. REGLA: benchmark (Ejecución Completa del Script)
+benchmark: $(TARGET) run_benchmark.sh
+	@echo "--- 📊 Ejecutando Benchmark Completo (Sección 5.e) ---"
+	chmod +x run_benchmark.sh
+	./run_benchmark.sh
+
+# 3. REGLA: graphic (Generación de Gráficos)
+# Asegura que el benchmark se haya ejecutado (para tener el CSV) y luego ejecuta el script de Python.
+graphic: $(TARGET) benchmark
+	@echo "--- 📈 Generando Gráficas de Desempeño (Sección 5.e y 6.b) ---"
+	python3 $(GRAPHIC_SCRIPT)
 
 # Regla para limpiar archivos generados
 clean:
-	rm -rf $(BUILD_DIR)
-	@echo "Directorio $(BUILD_DIR) y su contenido (objetos y ejecutable) eliminados."
+	rm -rf $(OBJ_DIR) $(TARGET) performance_results.csv graphics/
+	@echo "Archivos compilados, ejecutable, directorio 'obj' y gráficas eliminados."
 
-.PHONY: all run clean
+.PHONY: all run benchmark graphic clean
