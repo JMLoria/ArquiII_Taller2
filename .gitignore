@@ -44,3 +44,4 @@
 obj/
 graphics/
 case_converter
+performance_results.csv

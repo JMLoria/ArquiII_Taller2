@@ -53,7 +53,7 @@ make benchmark
 Para asegurar que las mediciones se hayan completado y luego ejecuta el script de Python (plot_graphics.py) para generar los gráficos requeridos
 
 ```bash
-make graphics
+make graphic
 ```
 
 
